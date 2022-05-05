@@ -1,0 +1,23 @@
+# Dotbot configuration
+# https://git.io/dotbot
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+   ~/bin/clean-usb : clean-usb.sh
+   ~/bin/check-network: check-network.py
+   ~/bin/fileurl: fileurl.py
+   ~/bin/genpass: genpass.py
+   ~/bin/mail-handler: mail-handler.py
+   ~/bin/notify: notify.sh
+   ~/bin/pass-parse: password-store/pass-parse.py
+   ~/bin/pass-to-hammerspoon: password-store/pass-to-hammerspoon.py
+   ~/bin/pbedit: pbedit.sh
+   ~/bin/playlist: playlist.py
+   ~/bin/syncer: syncer.sh
+   ~/bin/tmux-other-pane: tmux/tmux-other-pane.py
+   ~/bin/tmux-popup: tmux/tmux-popup.sh
+   ~/bin/urlclean: urlclean.py
+   ~/bin/zoom: zoom.sh
