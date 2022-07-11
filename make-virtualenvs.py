@@ -162,7 +162,6 @@ def main(argv=None):
                                help='Specify virtualenvs to update')
 
     args = parser.parse_args()
-    print(args)  # DEBUG
 
     config = configparser.ConfigParser()
     # Explicity open file so we throw exception if it doesn't exist
