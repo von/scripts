@@ -63,10 +63,24 @@ def pass_device(args):
 
 def pass_phrase(args):
     """Generate a pass phrase."""
-    dict = os.path.expanduser(args.dict)
-    debug("Reading dictionary {}".format(dict))
-    with open(dict) as f:
-        words = f.readlines()
+    words = None
+    if args.dict:
+        # Use user-specified file
+        dict = os.path.expanduser(args.dict)
+        debug("Reading user-specified dictionary {}".format(dict))
+        with open(dict) as f:
+            words = f.readlines()
+    else:
+        # Search standard places
+        for dict in words_files:
+            try:
+                with open(dict) as f:
+                    words = f.readlines()
+                debug("Reading dictionary {}".format(dict))
+            except FileNotFoundError:
+                continue
+        if not words:
+            raise FileNotFoundError("No dictionary file found.")
     debug("Length is {}".format(args.length))
     # Create lists of random words and random separators
     words = [random.choice(words).strip() for i in range(args.length)]
@@ -139,6 +153,13 @@ separators = {
     "spaces": [" "],
     "nums": [str(i) for i in range(100)],
 }
+
+# Places to look for words files
+# Used by pass_phrase
+words_files = [
+    "/usr/share/dict/words",
+    "/usr/dict/words"
+]
 
 ######################################################################
 
@@ -235,7 +256,7 @@ def main(argv=None):
         help="Capitalize words in pass phrase")
     parser_phrase.add_argument(
         "-D", "--dict",
-        default="~/lib/shared/words",
+        default=os.getenv("WORDS_FILE"),
         help="Specify dictionary file to use for pass phrases",
         metavar="PATH")
     parser_phrase.add_argument(
