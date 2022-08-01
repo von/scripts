@@ -41,6 +41,7 @@ def pass_word(args):
     s = "".join([random.choice(alphabet) for i in range(args.length)])
     return s
 
+
 def pass_device(args):
     """Generate a simple password suitable for entering on a device."""
     if args.charset:
@@ -58,6 +59,7 @@ def pass_device(args):
     debug("Length is {}".format(args.length))
     s = "".join([random.choice(alphabet) for i in range(args.length)])
     return s
+
 
 def pass_phrase(args):
     """Generate a pass phrase."""
@@ -114,6 +116,7 @@ def output_clipboard(s, args):
         output("Putting password to clipboard failed.")
         return(1)
     return(0)
+
 
 ######################################################################
 
@@ -276,6 +279,7 @@ def main(argv=None):
         return(1)
 
     return(0)
+
 
 if __name__ == "__main__":
     sys.exit(main())
