@@ -11,6 +11,7 @@
    ~/bin/fileurl: fileurl.py
    ~/bin/genpass: genpass.py
    ~/bin/mail-handler: mail-handler.py
+   ~/bin/make-virtualenvs: make-virtualenvs.py
    ~/bin/notify: notify.sh
    ~/bin/pass-parse: password-store/pass-parse.py
    ~/bin/pass-to-hammerspoon: password-store/pass-to-hammerspoon.py
