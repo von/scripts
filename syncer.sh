@@ -21,9 +21,15 @@ do_rsync()
   test -n "$dst" || { echo "Usage: do_rsync <src> <dst>" ; return 1 ; }
 
   cd "${src}"
+  # rsync options:
   # --size-only: I don't think the NAS keeps accurate timestamps
   # --ignore-errors: .Spotlight-V100 can cause errors
-  rsync -urv --size-only --delete-during --ignore-errors . "${dst}"
+  #
+  # caffeinate options:
+  #  -i: prevent system from idle sleeping
+  #  -m: prevent disk from idle sleeping
+  #  -s: prevent system from sleeping on AC power
+  caffeinate -ims rsync -urv --size-only --delete-during --ignore-errors . "${dst}"
 }
 
 # Leading colon means silent errors, script will handle them
