@@ -92,9 +92,9 @@ def do_create(args, config):
 
 
 def do_update(args, config):
-    """Update virtualenvs"""
+    """Update packages in virtualenvs"""
     error_detected = 0
-    output("Updating virtualenvs...")
+    output("Updating virtualenv packages...")
     sections = args.venvs or config.sections()
     for s in sections:
         try:
@@ -158,8 +158,9 @@ def main(argv=None):
     # create the parser for the "update" command
     parser_update = subparsers.add_parser('update', help=do_update.__doc__)
     parser_update.set_defaults(func=do_update)
-    parser_update.add_argument('venvs', nargs='*',
-                               help='Specify virtualenvs to update')
+    parser_update.add_argument(
+        'venvs', nargs='*',
+        help='Specify virtualenvs to update packages in')
 
     args = parser.parse_args()
 
