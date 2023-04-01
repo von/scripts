@@ -11,6 +11,7 @@ import os.path
 import shutil
 import sys
 
+
 def sizeof_fmt(num, fmt="%5.3f", suffix='B'):
     """Return string representation of given size"""
     # Force num to be a flost
@@ -23,6 +24,7 @@ def sizeof_fmt(num, fmt="%5.3f", suffix='B'):
             return s
         num /= 1024
     return "%.1f%s%s" % (num, 'Y', suffix)
+
 
 class Playlist(object):
 
@@ -61,14 +63,17 @@ class Playlist(object):
         """Return total size of playlist"""
         return sum([os.path.getsize(f) for f in self.files()])
 
+
 def copy_cmd(args):
     args.playlist.copy(args.dest[0])
     return 0
+
 
 def size_cmd(args):
     size = args.playlist.size()
     print(sizeof_fmt(size))
     return 0
+
 
 def main(argv=None):
     # Do argv default this way, as doing it in the functional
@@ -120,6 +125,7 @@ def main(argv=None):
         return 1
 
     return args.func(args)
+
 
 if __name__ == "__main__":
     sys.exit(main())
