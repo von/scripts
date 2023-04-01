@@ -111,13 +111,13 @@ def main(argv=None):
 
     args = parser.parse_args()
 
-    # XXX It is possible that the user didn't provide a subcommand, in
-    # which case various values in args may not be set to a default
-    # Seems we need to manually check for this.
-    # https://stackoverflow.com/questions/6365601/default-sub-command-or-handling-no-sub-command-with-argparse
-
-    if args.playlist:
-        args.playlist = Playlist(args.playlist[0])
+    try:
+        if args.playlist:
+            args.playlist = Playlist(args.playlist[0])
+    except AttributeError:
+        # No playlist provided
+        parser.print_usage()
+        return 1
 
     return args.func(args)
 
