@@ -139,7 +139,10 @@ class Script:
             line = self.file.readline()
         return paragraph
 
-    def read(self):
+    def read(self, pause=True):
+        """Read the script.
+
+        If pause is True, wait for keypress between lines."""
         while paragraph := self.read_paragraph():
             if self.comment_regex.fullmatch(paragraph):
                 continue
@@ -147,7 +150,8 @@ class Script:
                 character = Character.get(match.group(1))
                 line = match.group(2)
                 character.say(line)
-                input("Press return to continue...")
+                if pause:
+                    input("Press return to continue...")
             elif match := self.voice_regex.fullmatch(paragraph):
                 character = Character.get(match.group(1))
                 voice = match.group(2)
@@ -179,6 +183,12 @@ def make_argparser():
     parser.add_argument("-m", "--mute", metavar="character",
                         action='store', type=str, default=None,
                         help="Mute character")
+    parser.add_argument("-p", "--pause",
+                        action='store_true', default=True,
+                        help="Pause between lines for keypress")
+    parser.add_argument("-P", "--nopause",
+                        action='store_false', dest="pause",
+                        help="Do not pause between lines for keypress")
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
     parser.add_argument("script", metavar="script", type=str, nargs=1,
                         help="Script file to read")
@@ -194,7 +204,7 @@ def main(argv=None):
         c.mute()
 
     script = Script(args.script[0])
-    script.read()
+    script.read(pause=args.pause)
     return(0)
 
 
