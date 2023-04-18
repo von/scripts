@@ -8,6 +8,7 @@
 - link:
    ~/bin/clean-usb : clean-usb.sh
    ~/bin/check-network: check-network.py
+   ~/bin/combine-pdfs: combine-pdfs.sh
    ~/bin/fileurl: fileurl.py
    ~/bin/genpass: genpass.py
    ~/bin/mail-handler: mail-handler.py
