@@ -45,8 +45,13 @@ shift $(($OPTIND - 1))
 if test $# -eq 0 ; then
   gitroot=$(git rev-parse --show-toplevel)
 else
-  gitroot=$(cd "${1}" ; git rev-parse --show-toplevel)
-  shift
+  path=${1} ; shift
+  # Handle a file instead of a directory
+  if test ! -d "${path}" ; then
+    path=$(dirname "${path}")
+  fi
+  # The following will fail if path is not a git repo
+  gitroot=$(cd "${path}" ; git rev-parse --show-toplevel)
 fi
 
 session_opts+=" -c \"${gitroot}\""
