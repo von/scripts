@@ -26,13 +26,15 @@ def url_cleanup_function(function):
 
 
 @url_cleanup_function
-def clean_google_search_result(urlstring):
-    """Clean up a Google search result
+def clean_google_redirect(urlstring):
+    """Clean up a Google redirect from search or calendar
 
     Google search result:
         https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&ved=0ahUKEwjex5Om3_nQAhXGqVQKHUiHDIoQFggoMAM&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2F%2522Hello%2C_World!%2522_program&usg=AFQjCNGfl-sRw62JgahA16FJaZSX9L7oCg&bvm=bv.142059868,d.eWE
     Converts to:
         https://en.wikipedia.org/wiki/%22Hello,_World!%22_program
+
+    Calendar URLs are similar but use 'q' instead of 'url'
     """
 
     parsed_url = urllib.parse.urlparse(urlstring)
@@ -42,6 +44,8 @@ def clean_google_search_result(urlstring):
         query_params = urllib.parse.parse_qs(parsed_url.query)
         if "url" in query_params:
             return query_params["url"][0]
+        elif "q" in query_params:
+            return query_params["q"][0]
     return None
 
 
