@@ -7,10 +7,13 @@
 # Exit when complete, if successful
 popup_opts="-E -E"
 
-# Bottom of window
+# Full-sized popup window
 popup_opts+=" -xP -yP -w100% -h100%"
 
 # Prefix for popup sessions
+# This is important as the "popup" prefix causes tmuxp-popup to
+# treat the popup as such when toggling, meaning my C-<up> binding
+# will close this popup window instead of opening a new one.
 popup_prefix="popup"
 
 # Options for started session
