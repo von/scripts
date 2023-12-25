@@ -9,6 +9,7 @@ Modified to use argparse (new in 2.7) instead of getopt.
 """
 
 import argparse
+import fileinput
 import subprocess
 import sys
 import urllib.request, urllib.parse, urllib.error, urllib.parse
@@ -179,13 +180,18 @@ def main(argv=None):
         # formatting, use: ArgumentDefaultsHelpFormatter
     )
     parser.set_defaults(
-        output_func=set_clipboard,
+        output_func=print,
+        readclipboard=False
         )
     parser.add_argument("-c", "--clipboard",
                         action="store_const",
                         dest="output_func",
                         const=set_clipboard,
                         help="Put resulting URL in clipboard")
+    parser.add_argument("-C", "--readclipboard",
+                        action="store_true",
+                        dest="readclipboard",
+                        help="Read URL from clipboard")
     parser.add_argument("-o", "--open",
                         action="store_const",
                         dest="output_func",
@@ -203,11 +209,17 @@ def main(argv=None):
                         help='url to parse')
     args = parser.parse_args()
 
-    # Read from clipboard if no URL given on commandline
-    if not args.url:
+    if args.readclipboard:
         url = get_clipboard()
         if not url:
             print("Failed to read url from clipboard.")
+            return(1)
+        args.url.append(url)
+    elif not args.url:
+        # No URL given on commandline, read from stdin
+        url = "".join([line.rstrip() for line in fileinput.input()])
+        if not url:
+            print("Failed to read url from stdin.")
             return(1)
         args.url.append(url)
 
