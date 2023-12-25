@@ -12,7 +12,10 @@ import argparse
 import fileinput
 import subprocess
 import sys
-import urllib.request, urllib.parse, urllib.error, urllib.parse
+import urllib.request
+import urllib.parse
+import urllib.error
+import urllib.parse
 import webbrowser
 
 # Allow building list of cleanup functions to call using descorator
@@ -158,7 +161,8 @@ def process_url(urlstring):
     global cleanup_functions
     try:
         urllib.parse.urlparse(urlstring)
-    except:
+    except ValueError:
+        # Best I can tell, this is the only exception type possible
         print("Bad url: {}".format(urlstring))
         return(1)
     for func in cleanup_functions:
@@ -232,6 +236,7 @@ def main(argv=None):
     url = process_url(args.url[0])
     args.output_func(url)
     return(0)
+
 
 if __name__ == "__main__":
     sys.exit(main())
