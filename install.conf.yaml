@@ -21,5 +21,6 @@
    ~/bin/syncer: syncer.sh
    ~/bin/tmux-other-pane: tmux/tmux-other-pane.py
    ~/bin/tmux-popup: tmux/tmux-popup.sh
+   ~/bin/tmux-popup-gitroot: tmux/tmux-popup-gitroot.sh
    ~/bin/urlclean: urlclean.py
    ~/bin/zoom: zoom.sh
