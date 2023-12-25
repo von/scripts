@@ -44,16 +44,24 @@ def to_pastebuffer(text):
         print("{} returned {}".format(pb_prog, retcode))
 
 
-def show_output(output):
+def show_output(output, timeout=120):
     """Show the output to the user via vim"""
     # "vim -" reads contents to be edited from stdin, avoids vim
     # complaining about stdin not being a tty.
     cmd = os.environ["EDITOR"] if "EDITOR" in os.environ else "vi"
     pipe = subprocess.Popen([cmd, "-R", "-"], stdin=subprocess.PIPE)
-    pipe.communicate(output.encode("utf-8"))
-    retcode = pipe.wait()
-    if retcode:
-        print("Vim returned {}".format(retcode))
+    try:
+        pipe.communicate(output.encode("utf-8"), timeout=timeout)
+    except subprocess.TimeoutExpired:
+        pipe.terminate()
+        # Call wait otherwise print() doesn't work
+        retcode = pipe.wait()
+        print("Timeout reached.")
+    else:
+        # Process has already exited, get return code
+        retcode = pipe.wait()
+        if retcode:
+            print("Vim returned {}".format(retcode))
 
 
 def main(argv=None):
