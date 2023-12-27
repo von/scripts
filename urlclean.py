@@ -159,12 +159,6 @@ def parse_url(urlstring):
 
 def process_url(urlstring):
     global cleanup_functions
-    try:
-        urllib.parse.urlparse(urlstring)
-    except ValueError:
-        # Best I can tell, this is the only exception type possible
-        print("Bad url: {}".format(urlstring))
-        return(1)
     for func in cleanup_functions:
         result = func(urlstring)
         if result is None:
@@ -233,6 +227,18 @@ def main(argv=None):
 
     if args.parse:
         return(parse_url(args.url[0]))
+    # Check to make sure url is parsable
+    try:
+        results = urllib.parse.urlparse(args.url[0])
+    except ValueError:
+        # Best I can tell, this is the only exception type possible
+        print("Bad url: {}".format(args.url[0]), file=sys.stderr)
+        return(1)
+    # It seems one can feed urlparse anything and it will return a ParseResult
+    # with the value in path and efverything else being an empty string.
+    if not results.scheme:
+        print("Bad url: {}".format(args.url[0]), file=sys.stderr)
+        return(1)
     url = process_url(args.url[0])
     args.output_func(url)
     return(0)
