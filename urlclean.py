@@ -220,14 +220,14 @@ def main(argv=None):
     if args.readclipboard:
         url = get_clipboard()
         if not url:
-            print("Failed to read url from clipboard.")
+            print("Failed to read url from clipboard.", file=sys.stderr)
             return(1)
         args.url.append(url)
     elif not args.url:
         # No URL given on commandline, read from stdin
         url = "".join([line.rstrip() for line in fileinput.input()])
         if not url:
-            print("Failed to read url from stdin.")
+            print("Failed to read url from stdin.", file=sys.stderr)
             return(1)
         args.url.append(url)
 
