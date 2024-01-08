@@ -65,7 +65,7 @@ def parse_content_fd(fd):
     """Parse message from given descriptor"""
     message = {}
     for line in iter(fd.readline, ''):
-        # XXX This fails strangle if there is no value
+        # XXX This fails strangely if there is no value
         result = re.match("(\w+): (.*)", line)
         if not result:
             # Assume past headers
