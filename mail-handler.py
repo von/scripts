@@ -7,6 +7,7 @@ import datetime
 import os.path
 import re
 from subprocess import Popen, PIPE
+import webbrowser
 
 
 def escape(s):
@@ -58,7 +59,7 @@ def make_parser():
                         default=None, help="attachment(s)")
     parser.add_argument('--input', default=None, metavar="filename",
                         help="Input filename ('-' for stdin)")
-    parser.add_argument('--mailapp', default="applemail",
+    parser.add_argument('--mailapp', default="gmail",
                         metavar="application", help="Mail application")
     parser.add_argument('--send', action="store_true", default=False,
                         help="Send the message")
@@ -213,6 +214,31 @@ def outlook_handler(message, send=False):
     return p.returncode
 
 
+# Use GMail to send email (via opening a URL)
+# Kudos: https://stackoverflow.com/a/8852679/197789
+def gmail_handler(message, send=False):
+    """Opens an email message in GMail via a URL"""
+    url = "https://mail.google.com/mail/?view=cm&fs=1"
+    if message["to_addr"]:
+        url += "&to="
+        url += ",".join(message["to_addr"])
+    if message["cc_addr"]:
+        url += "&cc="
+        url += ",".join(message["cc_addr"])
+    if message["bcc_addr"]:
+        url += "&bcc="
+        url += ",".join(message["bcc_addr"])
+    if message["subject"]:
+        url += "&su=" + escape(message["subject"])
+    if message["content"] and len(message["content"]) > 0:
+        url += "&body=" + escape(message["content"])
+    # TODO: Handle from
+    # TODO: Handle attachment
+
+    webbrowser.open(url)
+    return 0
+
+
 def stdout_handler(message, send=False):
     """Print mail message to stdout, probably for debugging"""
 
@@ -237,6 +263,7 @@ def stdout_handler(message, send=False):
 
 mailapp_handler = {
     "applemail": applemail_handler,
+    "gmail": gmail_handler,
     "outlook": outlook_handler,
     "text": stdout_handler
 }
