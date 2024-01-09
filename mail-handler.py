@@ -70,7 +70,7 @@ def parse_content_fd(fd):
     message = {}
     for line in iter(fd.readline, ''):
         # XXX This fails strangely if there is no value
-        result = re.match("(\w+): (.*)", line)
+        result = re.match("(\\w+): (.*)", line)
         if not result:
             # Assume past headers
             break
