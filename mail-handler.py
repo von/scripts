@@ -6,12 +6,14 @@ import argparse
 import datetime
 import os.path
 import re
-from subprocess import Popen,PIPE
+from subprocess import Popen, PIPE
+
 
 def escape(s):
-    s = s.replace("\\","\\\\")
-    s = s.replace('"','\\"')
+    s = s.replace("\\", "\\\\")
+    s = s.replace('"', '\\"')
     return s
+
 
 def substitute(s):
     """Make substitutions in string and return it.
@@ -20,7 +22,7 @@ def substitute(s):
 
     {today} - a datetime.date object for today. Which can have format
     modifiers as per the following. E.g. {date:%A} -> "Sunday"
-    See https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+    See https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior  #noqa
     Similarly: {tomorrow} {dayaftertomorrow}
 
     Example:
@@ -32,34 +34,36 @@ def substitute(s):
     day = datetime.timedelta(days=1)
     today = datetime.date.today()
     d = {
-        "today":today,
-        "tomorrow":today + day,
-        "dayaftertomorrow":today + 2*day,
+        "today": today,
+        "tomorrow": today + day,
+        "dayaftertomorrow": today + 2*day,
         }
     return s.format(**d)
+
 
 def make_parser():
     """Return arparse.ArgumentParser instance"""
     parser = argparse.ArgumentParser(description="Create a new mail message")
-    parser.add_argument('recipient', metavar="to-addr", nargs="*", default=None,
-                        help="message recipient(s)")
-    parser.add_argument('-s', '--subject', metavar="subject", default=None,
-                        help="message subject")
-    parser.add_argument('-c', '--cc', metavar="addr", nargs="+", default=None,
-                        help="carbon copy recipient(s)")
-    parser.add_argument('-b', '--bcc', metavar="addr", nargs="+", default=None,
-                        help="blind carbon copy recipient(s)")
-    parser.add_argument('-f', '--from', dest="from_addr", default=None,
-                        metavar="addr", help="from address")
-    parser.add_argument('-a', '--attach', metavar="file", nargs="+", default=None,
-                        help="attachment(s)")
+    parser.add_argument('recipient', metavar="to-addr", nargs="*",
+                        default=None, help="message recipient(s)")
+    parser.add_argument('-s', '--subject', metavar="subject",
+                        default=None, help="message subject")
+    parser.add_argument('-c', '--cc', metavar="addr", nargs="+",
+                        default=None, help="carbon copy recipient(s)")
+    parser.add_argument('-b', '--bcc', metavar="addr", nargs="+",
+                        default=None, help="blind carbon copy recipient(s)")
+    parser.add_argument('-f', '--from', dest="from_addr",
+                        default=None, metavar="addr", help="from address")
+    parser.add_argument('-a', '--attach', metavar="file", nargs="+",
+                        default=None, help="attachment(s)")
     parser.add_argument('--input', default=None, metavar="filename",
                         help="Input filename ('-' for stdin)")
-    parser.add_argument('--mailapp', default="applemail", metavar="application",
-                        help="Mail application")
+    parser.add_argument('--mailapp', default="applemail",
+                        metavar="application", help="Mail application")
     parser.add_argument('--send', action="store_true", default=False,
                         help="Send the message")
     return parser
+
 
 def parse_content_fd(fd):
     """Parse message from given descriptor"""
@@ -90,6 +94,7 @@ def parse_content_fd(fd):
         message["content"] = content
     return message
 
+
 # Use Apple Mail to send email
 # by Nathan Grigg http://nb.nathanamy.org
 # From https://gist.github.com/nathangrigg/2475544
@@ -111,21 +116,25 @@ def applemail_handler(message, send=False):
     template = 'make new %s with properties {%s:"%s"}'
     make_new = []
     if message["to_addr"]:
-        make_new.extend([template % ("to recipient","address",escape(addr))
-          for addr in message["to_addr"]])
+        make_new.extend([template % ("to recipient", "address", escape(addr))
+                         for addr in message["to_addr"]])
     if message["cc_addr"]:
-        make_new.extend([template % ("cc recipient","address",escape(addr))
-          for addr in message["cc_addr"]])
+        make_new.extend([template % ("cc recipient", "address", escape(addr))
+                         for addr in message["cc_addr"]])
     if message["bcc_addr"]:
-        make_new.extend([template % ("bcc recipient","address",escape(addr))
-          for addr in message["bcc_addr"]])
+        make_new.extend([template % ("bcc recipient", "address", escape(addr))
+                         for addr in message["bcc_addr"]])
     if message["attach"]:
-        make_new.extend([template % ("attachment","file name",
-          escape(os.path.abspath(f))) for f in message["attach"]])
+        make_new.extend([
+            template % (
+                "attachment", "file name",
+                escape(os.path.abspath(f))) for f in message["attach"]])
     if send:
         make_new.append('send')
     if len(make_new) > 0:
-        make_new_string = "tell result\n" + "\n".join(make_new) + "\nend tell\n"
+        make_new_string = "".join(["tell result\n",
+                                   "\n".join(make_new),
+                                   "\nend tell\n"])
     else:
         make_new_string = ""
 
@@ -135,9 +144,10 @@ def applemail_handler(message, send=False):
     """ % (properties_string, make_new_string)
 
     # run applescript
-    p = Popen(['/usr/bin/osascript'],stdin=PIPE,stdout=PIPE)
+    p = Popen(['/usr/bin/osascript'], stdin=PIPE, stdout=PIPE)
     p.communicate(script.encode("utf8"))
     return p.returncode
+
 
 # Use Outlook to send email
 # Kudos:
@@ -153,7 +163,8 @@ def outlook_handler(message, send=False):
     if message["from_addr"]:
         properties.append('sender:"%s"' % escape(message["from_addr"]))
     if message["content"] and len(message["content"]) > 0:
-        properties.append('plain text content:"%s"' % escape(message["content"]))
+        properties.append(
+            'plain text content:"%s"' % escape(message["content"]))
     properties_string = ",".join(properties)
 
     emailaddr_template = 'make new %s at newMessage with properties {%s:%s}'
@@ -161,17 +172,25 @@ def outlook_handler(message, send=False):
     def email_to_str(e): return "{address:\"%s\"}" % escape(e)
     make_new = []
     if message["to_addr"]:
-        make_new.extend([emailaddr_template % ("to recipient","email address",email_to_str(addr))
-          for addr in message["to_addr"]])
+        make_new.extend([emailaddr_template % ("to recipient",
+                                               "email address",
+                                               email_to_str(addr))
+                         for addr in message["to_addr"]])
     if message["cc_addr"]:
-        make_new.extend([emailaddr_template % ("cc recipient","email address",email_to_str(addr))
-          for addr in message["cc_addr"]])
+        make_new.extend([emailaddr_template % ("cc recipient",
+                                               "email address",
+                                               email_to_str(addr))
+                         for addr in message["cc_addr"]])
     if message["bcc_addr"]:
-        make_new.extend([emailaddr_template % ("bcc recipient","email address",email_to_str(addr))
-          for addr in message["bcc_addr"]])
+        make_new.extend([emailaddr_template % ("bcc recipient",
+                                               "email address",
+                                               email_to_str(addr))
+                         for addr in message["bcc_addr"]])
     if message["attach"]:
-        make_new.extend([template % ("attachment","file",
-          escape(os.path.abspath(f))) for f in message["attach"]])
+        make_new.extend([template % (
+            "attachment",
+            "file",
+            escape(os.path.abspath(f))) for f in message["attach"]])
     if send:
         make_new.append('send newMessage')
     else:
@@ -189,9 +208,10 @@ def outlook_handler(message, send=False):
     """ % (properties_string, make_new_string)
 
     # run applescript
-    p = Popen(['/usr/bin/osascript'],stdin=PIPE,stdout=PIPE)
+    p = Popen(['/usr/bin/osascript'], stdin=PIPE, stdout=PIPE)
     p.communicate(script.encode("utf8"))
     return p.returncode
+
 
 def stdout_handler(message, send=False):
     """Print mail message to stdout, probably for debugging"""
@@ -214,23 +234,24 @@ def stdout_handler(message, send=False):
     if message["content"]:
         print("\n" + message["content"])
 
+
 mailapp_handler = {
-    "applemail" : applemail_handler,
-    "outlook" : outlook_handler,
-    "text" : stdout_handler
+    "applemail": applemail_handler,
+    "outlook": outlook_handler,
+    "text": stdout_handler
 }
 
 
 def main(argv=None):
     message = {
-        "subject" : None,
-        "to_addr" : None,
-        "from_addr" : None,
-        "cc_addr" : None,
-        "bcc_addr" : None,
-        "attach" : None,
-        "content" : None,
-        "send" : False
+        "subject": None,
+        "to_addr": None,
+        "from_addr": None,
+        "cc_addr": None,
+        "bcc_addr": None,
+        "attach": None,
+        "content": None,
+        "send": False
         }
     parser = make_parser()
     args = parser.parse_args(argv if argv else sys.argv[1:])
@@ -242,13 +263,20 @@ def main(argv=None):
         message.update(parse_content_fd(fd))
 
     # Update message from args
-    message["subject"] = args.subject if args.subject else message["subject"]
-    message["to_addr"] = args.recipient if args.recipient else message["to_addr"]
-    message["from_addr"] = args.from_addr if args.from_addr else message["from_addr"]
-    message["send"] = args.send if args.send else message["send"]
-    message["cc_addr"] = args.cc if args.cc else message["cc_addr"]
-    message["bcc_addr"] = args.bcc if args.bcc else message["bcc_addr"]
-    message["attach"] = args.attach if args.attach else message["attach"]
+    message["subject"] = args.subject \
+        if args.subject else message["subject"]
+    message["to_addr"] = args.recipient \
+        if args.recipient else message["to_addr"]
+    message["from_addr"] = args.from_addr \
+        if args.from_addr else message["from_addr"]
+    message["send"] = args.send \
+        if args.send else message["send"]
+    message["cc_addr"] = args.cc \
+        if args.cc else message["cc_addr"]
+    message["bcc_addr"] = args.bcc \
+        if args.bcc else message["bcc_addr"]
+    message["attach"] = args.attach \
+        if args.attach else message["attach"]
 
     # Perform substitions on subject and content
     message["subject"] = substitute(message["subject"])
@@ -259,8 +287,9 @@ def main(argv=None):
     except KeyError:
         parser.error("Unrecognized Mail App: " + args.mailapp)
         sys.exit(1)
-    code = handler(message, send = args.send)
+    code = handler(message, send=args.send)
     sys.exit(code)
+
 
 if __name__ == "__main__":
     sys.exit(main())
