@@ -53,7 +53,7 @@ INPUT_PDFS=( "${@:1:$#-1}" )
 GS=${HOMEBREW_PREFIX:-/opt/homebrew}/bin/gs
 
 if test -x "${GS}" ; then
-  : # Ghostscript founds
+  : # Ghostscript found
 else
   echo "Ghostscript not found at ${GS}"
   exit 1
