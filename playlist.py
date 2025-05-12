@@ -8,6 +8,7 @@ import argparse
 import errno
 import os
 import os.path
+import random
 import shutil
 import sys
 
@@ -55,7 +56,10 @@ class Playlist(object):
         print("Write playlist to {}".format(dest_path))
         count = 0
         with open(dest_path, "w") as dest:
-            for file in self.files():
+            files = list(self.files())
+            if self.args.random_output:
+                random.shuffle(files)
+            for file in files:
                 if self.args.limit:
                     if count == self.args.limit:
                         print("Playlist limit ({}) reached.".format(self.args.limit),
@@ -67,7 +71,10 @@ class Playlist(object):
     def files(self):
         """Iterator returning files in playlist"""
         with open(self.path) as f:
-            for entry in [e.strip() for e in f.readlines()]:
+            entries = [e.strip() for e in f.readlines()]
+            if self.args.random_input:
+                random.shuffle(entries)
+            for entry in entries:
                 if not os.path.exists(entry):
                     print("Warning: {} does not exist".format(entry))
                 elif os.path.isfile(entry):
@@ -116,6 +123,12 @@ def main(argv=None):
     # Globals options
     parser.add_argument("-l", "--limit", type=int,
                                 help="set playlist length limit")
+    parser.add_argument("-r", "--random_input",
+                        action='store_true', default=False,
+                        help="Randomize input lines")
+    parser.add_argument("-R", "--random_output",
+                        action='store_true', default=False,
+                        help="Randomize output lines")
 
     # Only allow one of debug/quiet mode
     verbosity_group = parser.add_mutually_exclusive_group()
