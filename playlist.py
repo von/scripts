@@ -49,15 +49,25 @@ class Playlist(object):
                 print("Copying to {}".format(dest))
                 shutil.copy(file, dest)
 
+    def export(self, dest_path):
+        """Export playlist to m3u file"""
+        print("Write playlist to {}".format(dest_path))
+        with open(dest_path, "w") as dest:
+            for file in self.files():
+                dest.write(file + "\n")
+
     def files(self):
-        """Iterator returning files"""
+        """Iterator returning files in playlist"""
         with open(self.path) as f:
             for entry in [e.strip() for e in f.readlines()]:
-                if os.path.isfile(entry):
+                if not os.path.exists(entry):
+                    print("Warning: {} does not exist".format(entry))
+                elif os.path.isfile(entry):
                     yield entry
                 elif os.path.isdir(entry):
-                    for file in os.listdir(entry):
-                        yield os.path.join(entry, file)
+                    for root, dirs, files in os.walk(entry):
+                        for f in files:
+                            yield os.path.join(root, f)
 
     def size(self):
         """Return total size of playlist"""
@@ -66,6 +76,11 @@ class Playlist(object):
 
 def copy_cmd(args):
     args.playlist.copy(args.dest[0])
+    return 0
+
+
+def export_cmd(args):
+    args.playlist.export(args.dest[0])
     return 0
 
 
@@ -107,6 +122,15 @@ def main(argv=None):
     parser_copy.add_argument("dest", metavar="dest", type=str, nargs=1,
                              help="destination path")
     parser_copy.set_defaults(func=copy_cmd)
+
+    # 'export' subcommand
+    parser_export = subparsers.add_parser("export",
+                                          help="Export playlist to m3u file")
+    parser_export.add_argument("playlist", metavar="playlist", type=str, nargs=1,
+                             help="playlist")
+    parser_export.add_argument("dest", metavar="dest", type=str, nargs=1,
+                             help="destination path")
+    parser_export.set_defaults(func=export_cmd)
 
     # 'size' subcommand
     parser_size = subparsers.add_parser("size", help="Calculate playlist size")
