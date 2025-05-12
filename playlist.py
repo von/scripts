@@ -28,8 +28,9 @@ def sizeof_fmt(num, fmt="%5.3f", suffix='B'):
 
 class Playlist(object):
 
-    def __init__(self, path):
+    def __init__(self, path, args):
         self.path = path
+        self.args = args
 
     def copy(self, dest_path, path_depth=3):
         """Copy playlist files to destination
@@ -52,9 +53,16 @@ class Playlist(object):
     def export(self, dest_path):
         """Export playlist to m3u file"""
         print("Write playlist to {}".format(dest_path))
+        count = 0
         with open(dest_path, "w") as dest:
             for file in self.files():
+                if self.args.limit:
+                    if count == self.args.limit:
+                        print("Playlist limit ({}) reached.".format(self.args.limit),
+                              file=sys.stderr)
+                        break
                 dest.write(file + "\n")
+                count += 1
 
     def files(self):
         """Iterator returning files in playlist"""
@@ -104,6 +112,11 @@ def main(argv=None):
         # To have --help print defaults with trade-off it changes
         # formatting, use: ArgumentDefaultsHelpFormatter
     )
+
+    # Globals options
+    parser.add_argument("-l", "--limit", type=int,
+                                help="set playlist length limit")
+
     # Only allow one of debug/quiet mode
     verbosity_group = parser.add_mutually_exclusive_group()
     verbosity_group.add_argument("-d", "--debug",
@@ -142,7 +155,7 @@ def main(argv=None):
 
     try:
         if args.playlist:
-            args.playlist = Playlist(args.playlist[0])
+            args.playlist = Playlist(args.playlist[0], args)
     except AttributeError:
         # No playlist provided
         parser.print_usage()
