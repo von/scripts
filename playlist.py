@@ -84,6 +84,10 @@ class Playlist(object):
                         for f in files:
                             yield os.path.join(root, f)
 
+    def length(self):
+        """Return length of playlist (# of songs)"""
+        return len(list(self.files()))
+
     def size(self):
         """Return total size of playlist"""
         return sum([os.path.getsize(f) for f in self.files()])
@@ -96,6 +100,12 @@ def copy_cmd(args):
 
 def export_cmd(args):
     args.playlist.export(args.dest[0])
+    return 0
+
+
+def length_cmd(args):
+    length = args.playlist.length()
+    print(length)
     return 0
 
 
@@ -157,6 +167,13 @@ def main(argv=None):
     parser_export.add_argument("dest", metavar="dest", type=str, nargs=1,
                              help="destination path")
     parser_export.set_defaults(func=export_cmd)
+
+    # 'length' subcommand
+    parser_length = subparsers.add_parser("length",
+                                          help="Output playlist length (# of songs)")
+    parser_length.add_argument("playlist", metavar="playlist", type=str, nargs=1,
+                             help="playlist")
+    parser_length.set_defaults(func=length_cmd)
 
     # 'size' subcommand
     parser_size = subparsers.add_parser("size", help="Calculate playlist size")
