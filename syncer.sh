@@ -14,6 +14,8 @@ Options:
 END
 }
 
+# do_rsync <src> <dst>
+#  Make <dst> match <src>, deleting files in <dst> not in <src>
 do_rsync()
 {
   src=$1; shift
@@ -24,6 +26,7 @@ do_rsync()
   # rsync options:
   # --size-only: I don't think the NAS keeps accurate timestamps
   # --ignore-errors: .Spotlight-V100 can cause errors
+  # --delete-during: Delete files in dst not in source
   #
   # caffeinate options:
   #  -i: prevent system from idle sleeping
