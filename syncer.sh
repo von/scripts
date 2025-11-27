@@ -36,7 +36,7 @@ do_rsync()
 }
 
 # do_sync <path1> <path2>
-#  Make <path1> and <path2>, coping any files not in one to the other
+#  Sync <path1> and <path2>, coping any files not in one to the other
 do_sync()
 {
   path1=$1; shift
