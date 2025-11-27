@@ -41,7 +41,7 @@ do_sync()
 {
   path1=$1; shift
   path2=$1; shift
-  test -n "$dst" || { echo "Usage: do_sync <path1> <path2>" ; return 1 ; }
+  test -n "${path2}" || { echo "Usage: do_sync <path1> <path2>" ; return 1 ; }
 
   cd "${path1}"
   # rsync options:
