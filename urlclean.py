@@ -120,6 +120,25 @@ def misc_query_cleaner(urlstring):
     return(parsed_url._replace(query=query).geturl())
 
 
+@url_cleanup_function
+def fb_query_cleaner(urlstring):
+    """Clean misc fields out of query
+
+    Remove "fbclid" query parameters.
+    """
+    parsed_url = urllib.parse.urlparse(urlstring)
+    if not parsed_url.query:
+        return None
+    query_params = urllib.parse.parse_qs(parsed_url.query)
+    # Remove elements from dict
+    # kudos: http://stackoverflow.com/a/11277439/197789
+    query_params.pop("fbclid", None)
+    query = urllib.parse.urlencode(query_params, doseq=True)
+    # Create modified parsed_url using _replace()
+    # Kudos: http://stackoverflow.com/a/24201020/197789
+    return(parsed_url._replace(query=query).geturl())
+
+
 def get_clipboard():
     """Return contents of clipboard"""
     p = subprocess.Popen(["pbpaste"],
