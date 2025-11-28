@@ -37,27 +37,26 @@ do_rsync()
 
 # do_sync <path1> <path2>
 #  Sync <path1> and <path2>, coping any files not in one to the other
+#  Uses unison: https://github.com/bcpierce00/unison
 do_sync()
 {
   path1=$1; shift
   path2=$1; shift
   test -n "${path2}" || { echo "Usage: do_sync <path1> <path2>" ; return 1 ; }
 
-  cd "${path1}"
-  # rsync options:
-  # --size-only: I don't think the NAS keeps accurate timestamps
-  # --ignore-errors: .Spotlight-V100 can cause errors
-  #
-  # caffeinate options:
-  #  -i: prevent system from idle sleeping
-  #  -m: prevent disk from idle sleeping
-  #  -s: prevent system from sleeping on AC power
-  caffeinate -ims rsync -urv --size-only --ignore-errors . "${path2}"
+  if ! command -v unison >/dev/null 2>&1
+then
+    echo "'unison' command not found"
+    return 1
+  fi
 
-  # Now sync new files from path2 back to path1
-  # Kudos: https://stackoverflow.com/a/1602348/197789
-  cd "${path2}"
-  caffeinate -ims rsync -urv --size-only --ignore-errors . "${path1}"
+  # unison arguments:
+  # -auto: automatically accept default non-conflicting actions
+  caffeinate -ims \
+    unison  -auto \
+    -ignore 'Name {.Spotlight-V100,.Trashes,.fseventsd}' \
+    -fat \
+    "${path1}" "${path2}"
 }
 
 # Leading colon means silent errors, script will handle them
