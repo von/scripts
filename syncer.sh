@@ -4,6 +4,9 @@
 
 CONF_DIR="${HOME}/.syncer/"
 
+# rsync arguments we always include
+_rsync_args="--exclude .Spotlight-V100 --exclude .Trashes --exclude .fseventsd --ignore-errors"
+
 usage()
 {
   cat <<-END
@@ -32,7 +35,7 @@ do_rsync()
   #  -i: prevent system from idle sleeping
   #  -m: prevent disk from idle sleeping
   #  -s: prevent system from sleeping on AC power
-  caffeinate -ims rsync -urv --size-only --delete-during --ignore-errors . "${dst}"
+  caffeinate -ims rsync -urv --size-only --delete-during ${_rsync_args} . "${dst}"
 }
 
 # do_sync <path1> <path2>
@@ -52,12 +55,12 @@ do_sync()
   #  -i: prevent system from idle sleeping
   #  -m: prevent disk from idle sleeping
   #  -s: prevent system from sleeping on AC power
-  caffeinate -ims rsync -urv --size-only --ignore-errors . "${path2}"
+  caffeinate -ims rsync -urv --size-only ${_rsync_args} . "${path2}"
 
   # Now sync new files from path2 back to path1
   # Kudos: https://stackoverflow.com/a/1602348/197789
   cd "${path2}"
-  caffeinate -ims rsync -urv --size-only --ignore-errors . "${path1}"
+  caffeinate -ims rsync -urv --size-only ${_rsync_args} . "${path1}"
 }
 
 # Leading colon means silent errors, script will handle them
