@@ -46,10 +46,14 @@ class Playlist(object):
                 os.makedirs(os.path.dirname(dest))
             except OSError as exception:
                 if exception.errno != errno.EEXIST:
-                    raise
+                    print("Error: {}".format(exception))
+                    continue
             if not os.path.exists(dest):
                 print("Copying to {}".format(dest))
-                shutil.copy(file, dest)
+                try:
+                    shutil.copy(file, dest)
+                except OSError as exception:
+                    print("Error: {}".format(exception))
 
     def export(self, dest_path):
         """Export playlist to m3u file"""
